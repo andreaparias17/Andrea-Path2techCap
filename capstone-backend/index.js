@@ -6,16 +6,21 @@ const app = express();
 const port = process.env.PORT || 3500;
 const dbUrl = process.env.DB_URL;
 const Product = require('./models/Product');
+const authRoutes = require('./routes/auth');
+const { protect, adminOnly } = require('./middleware/auth');
 
 // Connect to MongoDB
 mongoose.connect(dbUrl)
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-app.use(cors());
+app.use(cors());//this allows my frontend to talk to backend
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/auth', authRoutes);
 
+
+// PUBLIC ROUTES
 app.get('/', (req, res) => {
     res.send('Welcome to the Capstone Backend API');    
 });
@@ -40,8 +45,8 @@ app.get('/products/:id', async (req, res) => {
   }
 });
 
-// Create a product--public for now)
-app.post('/products', async (req, res) => {
+// ADMIN ONLY ROUTES
+app.post('/products', protect, adminOnly, async (req, res) => {
   try {
     const p = await Product.create(req.body);
     res.status(201).json(p);
@@ -50,19 +55,7 @@ app.post('/products', async (req, res) => {
   }
 });
 
-// ⚠️ Dev-only: delete all products
-app.delete('/products', async (req, res) => {
-  try {
-    await Product.deleteMany({});
-    res.json({ ok: true, message: 'All products deleted' });
-  } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error' });
-  }
-});
-
-
-// Delete a product by id public for now )
-app.delete('/products/:id', async (req, res) => {
+app.delete('/products/:id', protect, adminOnly, async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
     res.json({ ok: true });
