@@ -3,6 +3,8 @@
 const router = require('express').Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { protect } = require('../middleware/auth');
+
 
 function signToken(user) {
   return jwt.sign(
@@ -19,7 +21,8 @@ router.post('/register', async (req, res) => {
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ message: 'Email already in use' });
 
-    const user = await User.create({ name, email, password, role }); 
+    const user = await User.create({ name, email, password, role: 'user' }); 
+    
     const token = signToken(user);
     res.status(201).json({
       token,
@@ -50,6 +53,12 @@ router.post('/login', async (req, res) => {
   } catch (err) {
     res.status(400).json({ message: 'Login failed', detail: err.message });
   }
+
+  // who am I
+router.get('/me', protect, async (req, res) => {
+  const user = await User.findById(req.user.id).select('_id name email role');
+  res.json(user);
+});
 });
 
 module.exports = router;
