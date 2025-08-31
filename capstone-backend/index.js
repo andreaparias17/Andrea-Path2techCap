@@ -8,6 +8,7 @@ const dbUrl = process.env.DB_URL;
 const Product = require('./models/Product');
 const authRoutes = require('./routes/auth');
 const { protect, adminOnly } = require('./middleware/auth');
+const cartRoutes = require('./routes/cart');
 
 // Connect to MongoDB
 mongoose.connect(dbUrl)
@@ -18,7 +19,7 @@ app.use(cors());//this allows my frontend to talk to backend
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/auth', authRoutes);
-
+app.use('/cart', cartRoutes);
 
 // PUBLIC ROUTES
 app.get('/', (req, res) => {
@@ -59,7 +60,7 @@ app.delete('/products/:id', protect, adminOnly, async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
     res.json({ ok: true });
-  } catch (error) {
+  } catch (error ) {
     res.status(400).json({ message: 'Invalid ID' });
   }
 });
