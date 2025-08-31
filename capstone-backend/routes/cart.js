@@ -1,4 +1,4 @@
-// routes/cart.js
+
 const router = require('express').Router();
 const { protect } = require('../middleware/auth');
 const Cart = require('../models/Cart');
@@ -17,7 +17,7 @@ router.get('/', protect, async (req, res) => {
   }
 });
 
-// POST /cart  -> { productId, qty }
+
 router.post('/', protect, async (req, res) => {
   try {
     const { productId, qty = 1 } = req.body;
@@ -48,7 +48,7 @@ router.post('/', protect, async (req, res) => {
     res.status(500).json({ message: 'Failed to update cart' });
   }
 
-  // DELETE /cart/:productId -> remove a line
+  // DELETE product ID 
 router.delete('/:productId', protect, async (req, res) => {
   try {
     const { productId } = req.params;

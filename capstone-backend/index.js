@@ -9,6 +9,7 @@ const Product = require('./models/Product');
 const authRoutes = require('./routes/auth');
 const { protect, adminOnly } = require('./middleware/auth');
 const cartRoutes = require('./routes/cart');
+const orderRoutes = require('./routes/orders'); 
 
 // Connect to MongoDB
 mongoose.connect(dbUrl)
@@ -20,6 +21,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/auth', authRoutes);
 app.use('/cart', cartRoutes);
+app.use('/', orderRoutes);
+
 
 // PUBLIC ROUTES
 app.get('/', (req, res) => {
