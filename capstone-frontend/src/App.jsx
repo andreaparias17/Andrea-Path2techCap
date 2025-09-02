@@ -1,24 +1,26 @@
-import React from 'react'
-import { Route, Routes } from 'react-router'
-import Navbar from './components/Navbar'
-import Footer from './components/Footer'
-import Home from './pages/Home'
-import NotFound from './pages/NotFound'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import Products from "./pages/Products";     
+import Product from "./pages/Product";    
 
-const App = () => {
+export default function App() {
   return (
-    <section className='app'>
+    <BrowserRouter>
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        {/* Create your new routes in your application and place them below this comment */}
-        
-        {/* Create your new routes in your application and place them above this comment */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <Footer />
-    </section>
-  )
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<Products />} />   
+          <Route path="/products/:id" element={<Product />} /> 
+          <Route path="/cart" element={<div>Cart (soon)</div>} />
+          <Route path="/login" element={<div>Login (soon)</div>} />
+          <Route path="/about" element={<div>About (soon)</div>} />
+        </Routes>
+      </main>
+      <footer className="text-center text-xs text-gray-500 py-10">
+        © {new Date().getFullYear()} Rebellions
+      </footer>
+    </BrowserRouter>
+  );
 }
-
-export default App

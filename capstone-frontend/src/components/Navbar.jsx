@@ -1,24 +1,21 @@
-import React from 'react'
-import { NavLink } from 'react-router';
-import { useCartStore } from '../store/CartStore';
-import '../styles/navbar.css';
+import { Link, NavLink } from "react-router-dom";
 
-const Navbar = () => {
-  const { items } = useCartStore();
-  const totalPrice = items?.reduce((total, item) => total + item.price, 0);
+export default function Navbar() {
   return (
-    <nav className='navbar'>
-      <h1>Header Goes Here</h1>
-      <section className='nav-links-container'>
-        <NavLink to="/" className='nav-link'>Home</NavLink>
-        {/* You will have to adjust the NavLink element below this comment to create a real checkout page, starting with creating a new route in your project and then adjusting the `to` property */}
-        <NavLink to="#" className='nav-link'>Checkout ${totalPrice}</NavLink>
-        {/* Create New NavLink Elements in your project and place them below this comment */}
-
-        {/* Create New NavLink Elements in your project and place them above this comment */}
-      </section>
-    </nav>
-  )
+    <header className="sticky top-0 z-40 bg-white/90 backdrop-blur border-b">
+      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-3">
+          {/* swap to your real logo later: <img src="/rebellions-logo.png" className="h-7" /> */}
+          <span className="text-2xl font-extrabold tracking-widest">REBELLIONS</span>
+        </Link>
+        <nav className="flex items-center gap-6 text-sm">
+          <NavLink to="/" className={({isActive}) => isActive ? "underline" : "hover:opacity-70"}>Home</NavLink>
+          <NavLink to="/products" className={({isActive}) => isActive ? "underline" : "hover:opacity-70"}>Shop</NavLink>
+          <NavLink to="/about" className={({isActive}) => isActive ? "underline" : "hover:opacity-70"}>About</NavLink>
+          <NavLink to="/cart" className={({isActive}) => isActive ? "underline" : "hover:opacity-70"}>Cart</NavLink>
+          <NavLink to="/login" className={({isActive}) => isActive ? "underline" : "hover:opacity-70"}>Login</NavLink>
+        </nav>
+      </div>
+    </header>
+  );
 }
-
-export default Navbar
