@@ -24,14 +24,14 @@ export default function Products() {
         setErr("");
       } catch (e) {
         setErr(e.message || "Failed to load products");
-        setItems([]); // still allow pills to show
+        setItems([]); 
       } finally {
         setLoading(false);
       }
     })();
   }, [category]);
 
-  // Always show these pills; add any categories found in data
+  
   const baseCats = ["All", "T-Shirts", "Hoodies"];
   const categories = useMemo(() => {
     const set = new Set(baseCats);
@@ -69,13 +69,13 @@ export default function Products() {
         ))}
       </div>
 
-      {/* States */}
+      
       {loading && <p>Loading…</p>}
       {!loading && err && (
         <p className="text-red-600 mb-6">{err}</p>
       )}
 
-      {/* Grid */}
+      
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {items.map(p => (
           <Link

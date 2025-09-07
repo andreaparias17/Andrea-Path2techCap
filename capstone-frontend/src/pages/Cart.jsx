@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3500";
 
@@ -7,7 +6,6 @@ export default function Cart() {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
-  const navigate = useNavigate();
 
   const token = localStorage.getItem("token");
 
@@ -38,6 +36,7 @@ export default function Cart() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const items = cart?.items || [];
   const subtotal = useMemo(() => {
     if (!cart?.items) return 0;
     return cart.items.reduce((sum, it) => sum + Number(it.product.price) * it.qty, 0);
@@ -45,7 +44,7 @@ export default function Cart() {
 
   async function updateQty(productId, qty) {
     try {
-      if (qty < 1) return; // guard
+      if (qty < 1) return;
       const res = await fetch(`${API}/cart`, {
         method: "POST",
         headers: {
@@ -76,18 +75,21 @@ export default function Cart() {
     }
   }
 
-  async function checkoutMock() {
+  async function checkoutStripe() {
     try {
-      const res = await fetch(`${API}/checkout/mock`, {
+      const token = localStorage.getItem("token");
+      if (!token) return alert("Please login first.");
+      if (!cart?.items?.length) return;
+
+      const res = await fetch(`${API}/checkout`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!res.ok) {
-        const j = await res.json().catch(() => ({}));
-        throw new Error(j.message || "Checkout failed");
-      }
-      // success → go to orders page
-      navigate("/orders");
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.url) throw new Error(data.message || "Checkout failed");
+
+      window.location.href = data.url;
     } catch (e) {
       alert(e.message);
     }
@@ -104,8 +106,6 @@ export default function Cart() {
 
   if (loading) return <p>Loading…</p>;
   if (err) return <p className="text-red-600">{err}</p>;
-
-  const items = cart?.items || [];
 
   return (
     <div className="grid md:grid-cols-3 gap-8">
@@ -129,7 +129,9 @@ export default function Cart() {
             />
             <div className="flex-1">
               <div className="font-semibold">{it.product.name}</div>
-              <div className="text-sm text-gray-500">${Number(it.product.price).toFixed(2)}</div>
+              <div className="text-sm text-gray-500">
+                ${Number(it.product.price).toFixed(2)}
+              </div>
             </div>
 
             {/* qty control */}
@@ -145,7 +147,9 @@ export default function Cart() {
                 className="w-16 border rounded px-2 py-1 text-center"
                 min={1}
                 value={it.qty}
-                onChange={(e) => updateQty(it.product._id, Math.max(1, Number(e.target.value)))}
+                onChange={(e) =>
+                  updateQty(it.product._id, Math.max(1, Number(e.target.value)))
+                }
               />
               <button
                 className="px-3 py-1 border rounded"
@@ -174,15 +178,17 @@ export default function Cart() {
         </div>
         <button
           disabled={items.length === 0}
-          onClick={checkoutMock}
+          onClick={checkoutStripe}
           className={`mt-4 w-full px-5 py-3 rounded-full border transition ${
-            items.length === 0 ? "opacity-50 cursor-not-allowed" : "hover:bg-black hover:text-white"
+            items.length === 0
+              ? "opacity-50 cursor-not-allowed"
+              : "hover:bg-black hover:text-white"
           }`}
         >
-          Checkout (Mock)
+          Checkout with Stripe (Test)
         </button>
         <p className="text-xs text-gray-500 mt-2">
-          Test mode — creates a paid order and clears your cart.
+          Test mode — redirects to Stripe Checkout.
         </p>
       </aside>
     </div>

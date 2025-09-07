@@ -5,6 +5,10 @@ import Products from "./pages/Products";
 import Product from "./pages/Product";    
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Admin from "./pages/Admin";
+
 
 export default function App() {
   return (
@@ -17,7 +21,10 @@ export default function App() {
           <Route path="/products/:id" element={<Product />} /> 
           <Route path="/cart" element={<Cart />} />
           <Route path="/orders" element={<Orders />} />
-          <Route path="/login" element={<div>Login (soon)</div>} />
+          <Route path="/admin" element={<Admin />} />
+
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/about" element={<div>About (soon)</div>} />
         </Routes>
       </main>

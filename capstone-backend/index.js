@@ -23,6 +23,8 @@ app.use('/auth', authRoutes);
 app.use('/cart', cartRoutes);
 app.use('/', orderRoutes);
 app.use("/checkout", require("./routes/checkout"));
+app.use('/upload', require('./routes/upload'));
+
 
 
 // PUBLIC ROUTES
