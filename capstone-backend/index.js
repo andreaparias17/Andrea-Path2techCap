@@ -16,12 +16,13 @@ mongoose.connect(dbUrl)
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-app.use(cors());//this allows my frontend to talk to backend
+app.use(cors({ origin: ['http://localhost:5173'], credentials: false }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/auth', authRoutes);
 app.use('/cart', cartRoutes);
 app.use('/', orderRoutes);
+app.use("/checkout", require("./routes/checkout"));
 
 
 // PUBLIC ROUTES
@@ -31,10 +32,14 @@ app.get('/', (req, res) => {
 
 app.get('/products', async (req, res) => {
   try {
-    const products = await Product.find();
+    const { category, q } = req.query;
+    const filter = {};
+    if (category && category !== 'All') filter.category = category;
+    if (q) filter.name = { $regex: q, $options: 'i' };
+
+    const products = await Product.find(filter);
     res.json(products);
   } catch (error) {
-    console.error('Error fetching products:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
