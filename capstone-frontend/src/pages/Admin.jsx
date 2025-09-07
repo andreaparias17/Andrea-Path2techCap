@@ -30,7 +30,7 @@ export default function Admin() {
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, []);
 
   async function onUpload(e) {
@@ -44,13 +44,13 @@ export default function Admin() {
     try {
       setUploading(true);
       const fd = new FormData();
-      // field name MUST match upload.single('image') in your backend route
+      
       fd.append("image", file);
 
       const res = await fetch(`${API}/upload`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`, // DO NOT set Content-Type for FormData
+          Authorization: `Bearer ${token}`, 
         },
         body: fd,
       });
@@ -84,7 +84,7 @@ export default function Admin() {
       name: form.name.trim(),
       price: priceNum,
       category: form.category.trim() || "T-Shirts",
-      imageUrl: form.imageUrl, // set by upload step
+      imageUrl: form.imageUrl, 
       description: form.description.trim(),
       sizes: form.sizes
         .split(",")
@@ -105,7 +105,7 @@ export default function Admin() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.message || "Create failed");
 
-      // reset form
+      
       setForm({
         name: "",
         price: "",
