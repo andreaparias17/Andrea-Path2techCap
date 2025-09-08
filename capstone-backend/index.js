@@ -24,6 +24,8 @@ app.use('/cart', cartRoutes);
 app.use('/', orderRoutes);
 app.use("/checkout", require("./routes/checkout"));
 app.use('/upload', require('./routes/upload'));
+app.use((req, _res, next) => { console.log(req.method, req.url); next(); });
+
 
 
 

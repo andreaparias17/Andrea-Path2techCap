@@ -1,28 +1,27 @@
-// scripts/resetPassword.js
 require('dotenv').config();
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 
 (async () => {
   try {
-    const uri = process.env.MONGO_URI || process.env.DB_URL;
-    if (!uri) throw new Error('Set MONGO_URI or DB_URL in .env');
-    await mongoose.connect(uri);
+    await mongoose.connect(process.env.DB_URL);
 
-    const email = 'admin@example.com';   // <- the account you want to fix
-    const newPass = 'Admin123';          // <- new password to set
+    const email  = process.argv[2] || 'admin@example.com';
+    const newPwd = process.argv[3] || 'Admin123';
 
     const user = await User.findOne({ email: email.toLowerCase().trim() });
     if (!user) throw new Error(`User not found: ${email}`);
 
-    user.password = await bcrypt.hash(newPass, 10); // ✅ store a hash
+    // set plain text — pre('save') will hash it
+    user.password = newPwd;
     await user.save();
 
-    console.log('✅ Password reset (hashed) for', email);
+    console.log(`✅ Password reset for ${email}`);
     process.exit(0);
   } catch (e) {
-    console.error('❌', e);
+    console.error('❌ Error:', e);
     process.exit(1);
+  } finally {
+    await mongoose.disconnect();
   }
 })();

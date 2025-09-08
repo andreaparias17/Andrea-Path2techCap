@@ -6,7 +6,7 @@ const User = require('../models/User');
 function signToken(user) {
   return jwt.sign(
     { id: user._id, role: user.role },
-    process.env.JWT_SECRET,                // must be defined
+    process.env.JWT_SECRET,
     { expiresIn: '7d' }
   );
 }
@@ -14,14 +14,16 @@ function signToken(user) {
 router.post('/login', async (req, res) => {
   try {
     const { email = '', password = '' } = req.body;
-    const normalized = email.toLowerCase().trim();
 
-    const user = await User.findOne({ email: normalized });
-    if (!user) return res.status(400).json({ message: 'Invalid credentials' });
+    // 1) Find user & explicitly include password
+    const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
+    if (!user) return res.status(400).json({ message: 'Login failed' });
 
-    const ok = await bcrypt.compare(password, user.password || '');
-    if (!ok) return res.status(400).json({ message: 'Invalid credentials' });
+    // 2) Compare
+    const ok = await bcrypt.compare(password, user.password);
+    if (!ok) return res.status(400).json({ message: 'Login failed' });
 
+    // 3) Success
     const token = signToken(user);
     res.json({
       token,
@@ -29,7 +31,7 @@ router.post('/login', async (req, res) => {
     });
   } catch (err) {
     console.error('LOGIN ERROR:', err);
-    res.status(500).json({ message: 'Login failed' });
+    res.status(400).json({ message: 'Login failed' });
   }
 });
 
