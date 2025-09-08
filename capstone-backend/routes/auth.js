@@ -1,49 +1,26 @@
-// register/login end points//
-
 const router = require('express').Router();
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
-const { protect } = require('../middleware/auth');
-
 
 function signToken(user) {
   return jwt.sign(
     { id: user._id, role: user.role },
-    process.env.JWT_SECRET,
+    process.env.JWT_SECRET,                // must be defined
     { expiresIn: '7d' }
   );
 }
 
-// POST /auth/register  -> { name, email, password }
-router.post('/register', async (req, res) => {
-  try {
-    const { name, email, password, role } = req.body; 
-    const exists = await User.findOne({ email });
-    if (exists) return res.status(400).json({ message: 'Email already in use' });
-
-    const user = await User.create({ name, email, password, role: 'user' }); 
-    
-    const token = signToken(user);
-    res.status(201).json({
-      token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role }
-    });
-  } catch (err) {
-    res.status(400).json({ message: 'Registration failed', detail: err.message });
-  }
-});
-
-// POST /auth/login -> { email, password }
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email = '', password = '' } = req.body;
+    const normalized = email.toLowerCase().trim();
 
-    // +password because schema hides it by default
-    const user = await User.findOne({ email }).select('+password');
-    if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+    const user = await User.findOne({ email: normalized });
+    if (!user) return res.status(400).json({ message: 'Invalid credentials' });
 
-    const ok = await user.comparePassword(password);
-    if (!ok) return res.status(401).json({ message: 'Invalid credentials' });
+    const ok = await bcrypt.compare(password, user.password || '');
+    if (!ok) return res.status(400).json({ message: 'Invalid credentials' });
 
     const token = signToken(user);
     res.json({
@@ -51,14 +28,9 @@ router.post('/login', async (req, res) => {
       user: { id: user._id, name: user.name, email: user.email, role: user.role }
     });
   } catch (err) {
-    res.status(400).json({ message: 'Login failed', detail: err.message });
+    console.error('LOGIN ERROR:', err);
+    res.status(500).json({ message: 'Login failed' });
   }
-
-  // who am I
-router.get('/me', protect, async (req, res) => {
-  const user = await User.findById(req.user.id).select('_id name email role');
-  res.json(user);
-});
 });
 
 module.exports = router;

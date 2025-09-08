@@ -6,7 +6,7 @@ const User = require("../models/User");
 
 async function seedUsers() {
   try {
-    const uri = process.env.MONGO_URI || process.env.DB_URL;
+    const uri = process.env.DB_URL;
     if (!uri) {
       throw new Error(
         "No Mongo URI found. Set MONGO_URI or DB_URL in capstone-backend/.env"

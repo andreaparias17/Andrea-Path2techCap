@@ -1,5 +1,4 @@
-// remember- this file will handle the admin only functions 
-// middleware/auth.js
+
 const jwt = require('jsonwebtoken');
 
 function protect(req, res, next) {
